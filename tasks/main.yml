@@ -1,0 +1,31 @@
+---
+
+# Combine Configuration, default config uses OS-specific configuration loaded above!
+- set_fact: _rspamd_config="{{ rspamd_default_config | combine(rspamd_config, recursive=True) }}"
+  no_log: true
+
+- name: rspamd installed
+  pkgng: name=rspamd state=present
+
+- name: create customization directories
+  file:
+    path: "{{os.prefix}}/etc/rspamd/{{item}}"
+    state: directory
+  with_items:
+    - override.d
+    - local.d
+
+- name: override configuration installed
+  template:
+    src: "templates/override.d/{{item}}.j2"
+    dest: "{{os.prefix}}/etc/rspamd/override.d/{{item}}"
+  with_items:
+    - worker-normal.inc
+    - worker-controller.inc
+  notify:
+    - restart rspamd
+
+- name: rspamd enabled
+  service: name=rspamd enabled=yes
+  notify:
+    - restart rspamd

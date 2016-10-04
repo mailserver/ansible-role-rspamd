@@ -1,0 +1,11 @@
+---
+
+os:
+  prefix:
+
+rspamd_default_config:
+  worker:
+    controller:
+      bind_socket: "localhost:11334"
+    normal:
+      bind_socket: "*:11333"
